@@ -141,7 +141,7 @@ model.fit(x,y)
 - Use ported ImageNet pretrained weights
 ```python
 # Example
-from gcvit_tensorflow import CvT
+from cvt_tensorflow import CvT
 
 model = CvT(configuration = "cvt-13",
             pretrained = True, 
