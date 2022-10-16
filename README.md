@@ -70,7 +70,7 @@ Max metrics difference: `9e-5`.
 ## Installation
 - Install from PyPI
 ```python
-Coming soon
+#Coming soon
 ```
 - Install from Github
 ```
