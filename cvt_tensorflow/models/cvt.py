@@ -1,4 +1,5 @@
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import random
 import numpy as np
 import json
@@ -7,6 +8,7 @@ from typing import Optional, Type, TypeVar
 from functools import partial
 import tensorflow_addons as tfa
 import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
 from tensorflow.python.framework import random_seed
 from cvt_tensorflow.models.config import MODELS_CONFIG, TF_WEIGHTS_URL
 from cvt_tensorflow.models.utils import _to_channel_first
