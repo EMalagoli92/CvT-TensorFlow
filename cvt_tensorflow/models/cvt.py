@@ -128,6 +128,7 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
     
 def CvT(configuration: Optional[str] = None,
         pretrained: bool = False,
+        resolution: int = 224,
         pretrained_version: str = '1k',
         **kwargs
         ) -> tf.keras.Model:
@@ -139,11 +140,11 @@ def CvT(configuration: Optional[str] = None,
                                                    )
             if pretrained:
                 if model.data_format == "channels_last":
-                    model(tf.ones((1,224,224,3)))
+                    model(tf.ones((1,resolution,resolution,3)))
                 elif model.data_format == "channels_first":
-                    model(tf.ones((1,3,224,224)))
-                weights_path = "{}/{}/{}_{}.h5".format(TF_WEIGHTS_URL,VERSION,configuration,pretrained_version)
-                model_weights = tf.keras.utils.get_file(fname = "{}_{}.h5".format(configuration,pretrained_version),
+                    model(tf.ones((1,3,resolution,resolution)))
+                weights_path = "{}/{}/{}-{}x{}_{}.h5".format(TF_WEIGHTS_URL,VERSION,configuration,resolution,resolution,pretrained_version)
+                model_weights = tf.keras.utils.get_file(fname = "{}-{}x{}_{}.h5".format(configuration,resolution,resolution,pretrained_version),
                                                         origin = weights_path,
                                                         cache_subdir = "datasets/cvt_tensorflow"
                                                         )
