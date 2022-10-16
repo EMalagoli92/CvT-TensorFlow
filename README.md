@@ -74,7 +74,7 @@ Coming soon
 ```
 - Install from Github
 ```
-Coming soon
+pip install https://github.com/EMalagoli92/CvT-TensorFlow
 ```
 - Clone the repo and install necessary packages 
 ```
