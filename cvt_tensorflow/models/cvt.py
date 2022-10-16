@@ -134,6 +134,37 @@ def CvT(configuration: Optional[str] = None,
         pretrained_version: str = '1k',
         **kwargs
         ) -> tf.keras.Model:
+    '''
+    Wrapper function for CvT model.
+
+    Parameters
+    ----------
+    configuration : Optional[str], optional
+        Name of CvT predefined configuration. 
+        Possible values are: cvt-13, cvt-21, cvt-w24
+        The default is None.
+    pretrained : bool, optional
+        Whether to use ImageNet pretrained weights. 
+        The default is False.
+    resolution : int, optional
+        Image resolution.
+        Possible values are: 224, 384
+        The default is 224.
+    pretrained_version : str, optional
+        Whether to use ImageNet-1k or ImageNet-22k 
+        pretrained weights.
+        The default is '1k'.
+
+    Raises
+    ------
+    KeyError
+        If choosen configuration not in:
+            ['cvt-13','cvt-21','cvt-w24']
+
+    Returns
+    -------
+    CvT model (tf.keras.Model)
+    '''
     if configuration is not None:
         if configuration in MODELS_CONFIG.keys():
             model = ConvolutionalVisionTransformer(spec = MODELS_CONFIG[configuration]['SPEC'],
