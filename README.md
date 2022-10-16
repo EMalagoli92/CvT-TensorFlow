@@ -38,6 +38,9 @@ in the model, simplifying the design for higher resolution vision tasks.
 
 
 ![Alt text](https://raw.githubusercontent.com/EMalagoli92/CvT-TensorFlow/266afd1057827d10f0dfb842f8ef73f5b19e471d/assets/images/pipeline.svg)
+<p align = "center"><sub>The pipeline of the CvT architecture. (a) Overall architecture, showing the hierarchical multi-stage
+structure facilitated by the Convolutional Token Embedding layer. (b) Details of the Convolutional Transformer Block,
+which contains the convolution projection as the first layer.</sub></p>
 
 <div id="results"/>
 
