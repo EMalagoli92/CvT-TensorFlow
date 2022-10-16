@@ -20,7 +20,7 @@ MODELS_CONFIG = {"cvt-13": {"SPEC":{"INIT": 'trunc_norm',
                                     "PADDING_Q": [1, 1, 1],
                                     "STRIDE_Q": [1, 1, 1]
                                     },
-                            "name": 'cvt-13-224x224',
+                            "name": 'cvt-13',
                            },
                  "cvt-21": {"SPEC":{"INIT": 'trunc_norm',
                                     "NUM_STAGES": 3,
@@ -44,7 +44,7 @@ MODELS_CONFIG = {"cvt-13": {"SPEC":{"INIT": 'trunc_norm',
                                     "PADDING_Q": [1, 1, 1],
                                     "STRIDE_Q": [1, 1, 1]
                                     },
-                            "name": "cvt-21-224x224",
+                            "name": "cvt-21",
                            },
                  "cvt-w24": {"SPEC":{"INIT": 'trunc_norm',
                                      "NUM_STAGES": 3,
@@ -68,7 +68,7 @@ MODELS_CONFIG = {"cvt-13": {"SPEC":{"INIT": 'trunc_norm',
                                      "PADDING_Q": [1, 1, 1],
                                      "STRIDE_Q": [1, 1, 1]
                                      },
-                            "name": "cvt-w24-384x384",
+                            "name": "cvt-w24",
                            }
                  }
 
