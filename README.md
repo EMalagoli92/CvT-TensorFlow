@@ -140,9 +140,10 @@ model.fit(x,y)
 ```
 - Use ported ImageNet pretrained weights
 ```python
-# Example: use cvt-13-384x384_22k ImageNet pretrained weights
+# Example
 from cvt_tensorflow import CvT
 
+# Use cvt-13-384x384_22k ImageNet pretrained weights
 model = CvT(configuration = "cvt-13",
             pretrained = True, 
             pretrained_resolution = 384,
