@@ -69,7 +69,7 @@ Max metrics difference: `9e-5`.
 
 ## Installation
 - Install from PyPI
-```python
+```
 pip install cvt-tensorflow
 ```
 - Install from Github
