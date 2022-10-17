@@ -10,9 +10,6 @@ I = TypeVar("I",bound=tf.keras.initializers.Initializer)
 
 @tf.keras.utils.register_keras_serializable(package='cvt')
 class Mlp(tf.keras.layers.Layer):
-    """
-    Multi-Layer Perceptron (MLP) block
-    """
     def __init__(self,
                  in_features: int,
                  hidden_features: Optional[int] = None,
@@ -24,28 +21,6 @@ class Mlp(tf.keras.layers.Layer):
                  dense_kernel_initializer: Union[Type[I],str,None] = None,
                  **kwargs
                  ):
-        """
-        Parameters
-        ----------
-        in_features : int
-            Input features dimension.
-        hidden_features : int, optional
-            Hidden features dimension. 
-            The default is None.
-        out_features : int, optional
-            Output features dimension. 
-            The default is None.
-        act_layer : tf.keras.layers.Layer, optional
-            Activation layer. 
-            The default is tfa.layers.GELU with
-            approximate set to False
-        drop : int, optional
-            Dropout rate. 
-            The default is 0.
-        dense_kernel_initializer: tf.keras.initializers.Initializer or str, 
-                                  optional
-            Kernel initializer for fully connected layer.  
-        """
         super().__init__(**kwargs)
         self.in_features = in_features
         self.hidden_features = hidden_features
