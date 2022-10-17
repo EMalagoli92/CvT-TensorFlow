@@ -44,14 +44,11 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
                  **kwargs
                  ):
         super().__init__(**kwargs)
-        
         if act_layer == tfa.layers.GELU:
             act_layer = partial(tfa.layers.GELU,
                                 approximate = False
                                 )
-        
         self.num_classes = num_classes
-        
         self.num_stages = spec['NUM_STAGES']
         for i in range(self.num_stages):
             kwargs = {'patch_size': spec['PATCH_SIZE'][i],
@@ -73,7 +70,6 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
                       'stride_kv': spec['STRIDE_KV'][i],
                       'stride_q': spec['STRIDE_Q'][i],
                       }
-            
             stage = VisionTransformer(in_chans = in_chans,
                                       init = init,
                                       act_layer = act_layer,
@@ -82,7 +78,6 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
                                       **kwargs
                                       )
             setattr(self, f"stage{i}",stage)
-            
             in_chans = spec['DIM_EMBED'][i]
             
         dim_embed = spec['DIM_EMBED'][-1]
