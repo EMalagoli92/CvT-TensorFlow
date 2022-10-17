@@ -125,7 +125,7 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
     
 def CvT(configuration: Optional[str] = None,
         pretrained: bool = False,
-        resolution: int = 224,
+        pretrained_resolution: int = 224,
         pretrained_version: str = '1k',
         **kwargs
         ) -> tf.keras.Model:
@@ -141,8 +141,8 @@ def CvT(configuration: Optional[str] = None,
     pretrained : bool, optional
         Whether to use ImageNet pretrained weights. 
         The default is False.
-    resolution : int, optional
-        Image resolution.
+    pretrained_resolution : int, optional
+        Image resolution of ImageNet pretrained weights.
         Possible values are: 224, 384
         The default is 224.
     pretrained_version : str, optional
@@ -168,11 +168,20 @@ def CvT(configuration: Optional[str] = None,
                                                    )
             if pretrained:
                 if model.data_format == "channels_last":
-                    model(tf.ones((1,resolution,resolution,3)))
+                    model(tf.ones((1,pretrained_resolution,pretrained_resolution,3)))
                 elif model.data_format == "channels_first":
-                    model(tf.ones((1,3,resolution,resolution)))
-                weights_path = "{}/{}/{}-{}x{}_{}.h5".format(TF_WEIGHTS_URL,VERSION,configuration,resolution,resolution,pretrained_version)
-                model_weights = tf.keras.utils.get_file(fname = "{}-{}x{}_{}.h5".format(configuration,resolution,resolution,pretrained_version),
+                    model(tf.ones((1,3,pretrained_resolution,pretrained_resolution)))
+                weights_path = "{}/{}/{}-{}x{}_{}.h5".format(TF_WEIGHTS_URL,VERSION,
+                                                             configuration,
+                                                             pretrained_resolution,
+                                                             pretrained_resolution,
+                                                             pretrained_version
+                                                             )
+                model_weights = tf.keras.utils.get_file(fname = "{}-{}x{}_{}.h5".format(configuration,
+                                                                                        pretrained_resolution,
+                                                                                        pretrained_resolution,
+                                                                                        pretrained_version
+                                                                                        ),
                                                         origin = weights_path,
                                                         cache_subdir = "datasets/cvt_tensorflow"
                                                         )

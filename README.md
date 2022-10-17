@@ -145,7 +145,7 @@ from cvt_tensorflow import CvT
 
 model = CvT(configuration = "cvt-13",
             pretrained = True, 
-            resolution = 384,
+            pretrained_resolution = 384,
             pretrained_version = "22k",           
             classifier_activation = "softmax"
             )
