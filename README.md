@@ -47,7 +47,7 @@ which contains the convolution projection as the first layer.</sub></p>
 ## Results
 TensorFlow implementation and ImageNet ported weights have been compared to the official Pytorch implementation on [ImageNet-V2](https://www.tensorflow.org/datasets/catalog/imagenet_v2) test set.
 
-### Models pre-trained on Imagenet-1K
+### Models pre-trained on ImageNet-1K
 | Configuration  | Resolution | Top-1 (Original) | Top-1 (Ported) | Top-5 (Original) | Top-5 (Ported) | #Params
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | CvT-13 | 224x224 | 69.81 | 69.81 | 89.13 | 89.13 | 20M |
@@ -56,7 +56,7 @@ TensorFlow implementation and ImageNet ported weights have been compared to the 
 | CvT-21 | 384x384 | 71.61 | 71.61 | 89.71 | 89.71 | 32M |
 
 
-### Models pre-trained on Imagenet-22K
+### Models pre-trained on ImageNet-22K
 | Configuration  | Resoluton | Top-1 (Original) | Top-1 (Ported) | Top-5 (Original) | Top-5 (Ported) | #Params
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
 | CvT-13 | 384x284 | 71.76 | 71.76 | 91.39 | 91.39 | 20M |
