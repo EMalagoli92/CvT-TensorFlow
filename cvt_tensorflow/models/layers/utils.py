@@ -497,6 +497,9 @@ class LayerNorm_(tf.keras.layers.LayerNormalization):
     
 @tf.keras.utils.register_keras_serializable(package='cvt')    
 class Identity_(tf.keras.layers.Layer):
+    '''
+    TF2/Keras implementation of torch.nn.Identity
+    '''
     def __init__(self,*args,**kwargs):
         super().__init__(**kwargs)
 
