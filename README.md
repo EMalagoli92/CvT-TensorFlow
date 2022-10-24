@@ -8,8 +8,8 @@
 
 # CvT-TensorFlow
 TensorFlow 2.X reimplementation of [CvT: Introducing Convolutions to Vision Transformers](https://arxiv.org/abs/2103.15808), Haiping Wu, Bin Xiao, Noel Codella, Mengchen Liu, Xiyang Dai, Lu Yuan, Lei Zhang.
-- Exact TensorFlow reimplementation of official Pytorch repo, including timm modules used by authors, preserving models and layers structure.
-- ImageNet pretrained weights ported from Pytorch official implementation.
+- Exact TensorFlow reimplementation of official PyTorch repo, including timm modules used by authors, preserving models and layers structure.
+- ImageNet pretrained weights ported from PyTorch official implementation.
 
 ## Table of contents
 - [Abstract](#abstract)
@@ -45,7 +45,7 @@ which contains the convolution projection as the first layer.</sub></p>
 <div id="results"/>
 
 ## Results
-TensorFlow implementation and ImageNet ported weights have been compared to the official Pytorch implementation on [ImageNet-V2](https://www.tensorflow.org/datasets/catalog/imagenet_v2) test set.
+TensorFlow implementation and ImageNet ported weights have been compared to the official PyTorch implementation on [ImageNet-V2](https://www.tensorflow.org/datasets/catalog/imagenet_v2) test set.
 
 ### Models pre-trained on ImageNet-1K
 | Configuration  | Resolution | Top-1 (Original) | Top-1 (Ported) | Top-5 (Original) | Top-5 (Ported) | #Params
@@ -156,7 +156,7 @@ y_pred = model(image)
 <div id="acknowledgement"/>
 
 ## Acknowledgement
-[CvT](https://github.com/microsoft/CvT) (Official Pytorch implementation)
+[CvT](https://github.com/microsoft/CvT) (Official PyTorch implementation)
 
 
 <div id="citations"/>
