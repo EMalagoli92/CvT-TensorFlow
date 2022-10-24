@@ -11,7 +11,7 @@ TensorFlow 2.X reimplementation of [CvT: Introducing Convolutions to Vision Tran
 - Exact TensorFlow reimplementation of official Pytorch repo, including timm modules used by authors, preserving models and layers structure.
 - ImageNet pretrained weights ported from Pytorch official implementation.
 
-## Table of content
+## Table of contents
 - [Abstract](#abstract)
 - [Results](#results)
 - [Installation](#installation)
