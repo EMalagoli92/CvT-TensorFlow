@@ -156,7 +156,7 @@ y_pred = model(image)
 <div id="acknowledgement"/>
 
 ## Acknowledgement
-- [CvT](https://github.com/microsoft/CvT) (Official Pytorch implementation)
+[CvT](https://github.com/microsoft/CvT) (Official Pytorch implementation)
 
 
 <div id="citations"/>
