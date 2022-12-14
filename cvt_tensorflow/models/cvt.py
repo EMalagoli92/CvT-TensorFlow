@@ -1,193 +1,275 @@
-import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-import random
-import numpy as np
-import json
-from einops import rearrange
-from typing import Optional, Type, TypeVar
-from functools import partial
-import tensorflow_addons as tfa
+from typing import Literal, Optional
+
 import tensorflow as tf
-tf.get_logger().setLevel('ERROR')
-from tensorflow.python.framework import random_seed
+from einops import rearrange
+
+from cvt_tensorflow import __version__
 from cvt_tensorflow.models.config import MODELS_CONFIG, TF_WEIGHTS_URL
-from cvt_tensorflow.models.utils import _to_channel_first
-from cvt_tensorflow.models.layers.utils import LayerNorm_, Dense_, Identity_, \
-                                               QuickGELU_
+from cvt_tensorflow.models.layers.utils import (
+    Dense_,
+    Identity_,
+    LayerNorm_,
+    TruncNormalInitializer_,
+)
 from cvt_tensorflow.models.layers.vision_transformer import VisionTransformer
-
-L = TypeVar("L",bound=tf.keras.layers.Layer)
-
-# Set Seed
-SEED = 123
-os.environ['PYTHONHASHSEED'] = str(SEED)
-random.seed(SEED)
-tf.random.set_seed(SEED)
-random_seed.set_seed(SEED)
-np.random.seed(SEED)
-
-version_path = os.path.normpath(os.path.join(os.path.split(os.path.dirname(__file__))[0],"version.json"))
-with open(version_path,'r') as handle:
-    VERSION = json.load(handle)['VERSION'] 
+from cvt_tensorflow.models.utils import _to_channel_first
 
 
+@tf.keras.utils.register_keras_serializable(package="cvt")
 class ConvolutionalVisionTransformer(tf.keras.Model):
-    def __init__(self,
-                 in_chans: int =3,
-                 num_classes: int =1000,
-                 act_layer: Type[L] = QuickGELU_,
-                 norm_layer: Type[L] = LayerNorm_,
-                 init: str ="trunc_norm",
-                 spec: Optional[dict] = None,
-                 classifier_activation: Optional[str] = None,
-                 data_format: Optional[str] = tf.keras.backend.image_data_format(),
-                 **kwargs
-                 ):
+    def __init__(
+        self,
+        spec: dict,
+        in_chans: int = 3,
+        num_classes: int = 1000,
+        act_layer: str = "quick_gelu",
+        init: Literal["trunc_norm", "xavier"] = "trunc_norm",
+        classifier_activation: Optional[str] = None,
+        data_format: Literal[
+            "channels_first", "channels_last"
+        ] = tf.keras.backend.image_data_format(),
+        **kwargs,
+    ):
+        """
+        Parameters
+        ----------
+        spec : dict
+            Model specifications.
+        in_chans : int, optional
+            Number of input channels.
+            The default is 3.
+        num_classes : int, optional
+            Number of classes.
+            The default is 1000.
+        act_layer : str, optional
+            Name of activation layer.
+            The default is "quick_gelu".
+        init : Literal["trunc_norm","xavier"], optional
+            Initialization method.
+            Possible values are: "trunc_norm", "xavier".
+            The default is "trunc_norm".
+        classifier_activation : Optional[str], optional
+            String name for a tf.keras.layers.Activation layer.
+            The default is None.
+        data_format : Literal["channels_first", "channels_last"], optional
+            A string, one of "channels_last" or "channels_first".
+            The ordering of the dimensions in the inputs.
+            "channels_last" corresponds to inputs with shape:
+            (batch_size, height, width, channels)
+            while "channels_first" corresponds to inputs with shape
+            (batch_size, channels, height, width).
+            The default is tf.keras.backend.image_data_format().
+        **kwargs
+            Additional keyword arguments.
+        """
         super().__init__(**kwargs)
-        if act_layer == tfa.layers.GELU:
-            act_layer = partial(tfa.layers.GELU,
-                                approximate = False
-                                )
+        self.in_chans = in_chans
         self.num_classes = num_classes
-        self.num_stages = spec['NUM_STAGES']
-        for i in range(self.num_stages):
-            kwargs = {'patch_size': spec['PATCH_SIZE'][i],
-                      'patch_stride': spec['PATCH_STRIDE'][i],
-                      'patch_padding': spec['PATCH_PADDING'][i],
-                      'embed_dim': spec['DIM_EMBED'][i],
-                      'depth': spec['DEPTH'][i],
-                      'num_heads': spec['NUM_HEADS'][i],
-                      'mlp_ratio': spec['MLP_RATIO'][i],
-                      'qkv_bias': spec['QKV_BIAS'][i],
-                      'drop_rate': spec['DROP_RATE'][i],
-                      'attn_drop_rate': spec['ATTN_DROP_RATE'][i],
-                      'drop_path_rate': spec['DROP_PATH_RATE'][i],
-                      'with_cls_token': spec['CLS_TOKEN'][i],
-                      'method': spec['QKV_PROJ_METHOD'][i],
-                      'kernel_size': spec['KERNEL_QKV'][i],
-                      'padding_q': spec['PADDING_Q'][i],
-                      'padding_kv': spec['PADDING_KV'][i],
-                      'stride_kv': spec['STRIDE_KV'][i],
-                      'stride_q': spec['STRIDE_Q'][i],
-                      }
-            stage = VisionTransformer(in_chans = in_chans,
-                                      init = init,
-                                      act_layer = act_layer,
-                                      norm_layer = norm_layer,
-                                      name = f"stage{i}",
-                                      **kwargs
-                                      )
-            setattr(self, f"stage{i}",stage)
-            in_chans = spec['DIM_EMBED'][i]
-            
-        dim_embed = spec['DIM_EMBED'][-1]
-        self.norm = norm_layer(dim_embed, name = "norm")
-        self.cls_token = spec['CLS_TOKEN'][-1]
-        
-        # Classifier head
-        self.head = Dense_(in_features = dim_embed,
-                           out_features = num_classes,
-                           bias_initializer = None,
-                           name = "head"
-                           ) if num_classes > 0 else Identity_(name = "head")
-        
-        if classifier_activation is not None:
-            self.classifier_activation = tf.keras.layers.Activation(classifier_activation,
-                                                                    dtype = self.dtype,
-                                                                    name = "pred"
-                                                                    )
+        self.act_layer = act_layer
+        self.init = init
+        self.spec = spec
+        self.classifier_activation = classifier_activation
         self.data_format = data_format
-        
-    def forward_features(self,x):
+
+        self.num_stages = self.spec["NUM_STAGES"]
+        in_chans_ = self.in_chans
         for i in range(self.num_stages):
-            x, cls_token = getattr(self,f"stage{i}")(x)
-            
+            kwargs = {
+                "patch_size": self.spec["PATCH_SIZE"][i],
+                "patch_stride": self.spec["PATCH_STRIDE"][i],
+                "patch_padding": self.spec["PATCH_PADDING"][i],
+                "embed_dim": self.spec["DIM_EMBED"][i],
+                "depth": self.spec["DEPTH"][i],
+                "num_heads": self.spec["NUM_HEADS"][i],
+                "mlp_ratio": self.spec["MLP_RATIO"][i],
+                "qkv_bias": self.spec["QKV_BIAS"][i],
+                "drop_rate": self.spec["DROP_RATE"][i],
+                "attn_drop_rate": self.spec["ATTN_DROP_RATE"][i],
+                "drop_path_rate": self.spec["DROP_PATH_RATE"][i],
+                "with_cls_token": self.spec["CLS_TOKEN"][i],
+                "method": self.spec["QKV_PROJ_METHOD"][i],
+                "kernel_size": self.spec["KERNEL_QKV"][i],
+                "padding_q": self.spec["PADDING_Q"][i],
+                "padding_kv": self.spec["PADDING_KV"][i],
+                "stride_kv": self.spec["STRIDE_KV"][i],
+                "stride_q": self.spec["STRIDE_Q"][i],
+            }
+            stage = VisionTransformer(
+                in_chans=in_chans_,
+                init=self.init,
+                act_layer=self.act_layer,
+                name=f"stage{i}",
+                **kwargs,
+            )
+            setattr(self, f"stage{i}", stage)
+            in_chans_ = self.spec["DIM_EMBED"][i]
+
+        dim_embed = self.spec["DIM_EMBED"][-1]
+        self.norm = LayerNorm_(dim_embed, name="norm")
+        self.cls_token = self.spec["CLS_TOKEN"][-1]
+
+        # Classifier head
+        self.head = (
+            Dense_(
+                in_features=dim_embed,
+                units=self.num_classes,
+                bias_initializer="pytorch_uniform",
+                kernel_initializer=TruncNormalInitializer_(std=0.02),
+                name="head",
+            )
+            if self.num_classes > 0
+            else Identity_(name="head")
+        )
+
+        if self.classifier_activation is not None:
+            self.classifier_activation_ = tf.keras.layers.Activation(
+                self.classifier_activation, dtype=self.dtype, name="pred"
+            )
+
+    def forward_features(self, x):
+        for i in range(self.num_stages):
+            x, cls_token = getattr(self, f"stage{i}")(x)
+
         if self.cls_token:
             x = self.norm(cls_token)
-            x = tf.squeeze(x,axis=[1])
+            x = tf.squeeze(x, axis=[1])
         else:
-            x = rearrange(x, 'b c h w -> b (h w) c')
+            x = rearrange(x, "b c h w -> b (h w) c")
             x = self.norm(x)
-            x = tf.math.reduce_mean(x,axis=1)
-            
+            x = tf.math.reduce_mean(x, axis=1)
+
         return x
-    
-    
-    def call(self,inputs,**kwargs):
+
+    def call(self, inputs, *args, **kwargs):
         if self.data_format == "channels_last":
             inputs = _to_channel_first(inputs)
         x = self.forward_features(inputs)
         x = self.head(x)
-        if hasattr(self, "classifier_activation"):
-            x = self.classifier_activation(x)
+        if hasattr(self, "classifier_activation_"):
+            x = self.classifier_activation_(x)
         return x
-    
-    
-def CvT(configuration: Optional[str] = None,
-        pretrained: bool = False,
-        pretrained_resolution: int = 224,
-        pretrained_version: str = '1k',
-        **kwargs
-        ) -> tf.keras.Model:
-    '''
-    Wrapper function for CvT model.
+
+    def build(self, input_shape):
+        super().build(input_shape)
+
+    def __to_functional(self):
+        if self.built:
+            x = tf.keras.layers.Input(shape=(self._build_input_shape[1:]))
+            model = tf.keras.Model(inputs=[x], outputs=self.call(x), name=self.name)
+        else:
+            raise ValueError(
+                "This model has not yet been built. "
+                "Build the model first by calling `build()` or "
+                "by calling the model on a batch of data."
+            )
+        return model
+
+    def summary(self, *args, **kwargs):
+        self.__to_functional()
+        super().summary(*args, **kwargs)
+
+    def plot_model(self, *args, **kwargs):
+        tf.keras.utils.plot_model(model=self.__to_functional(), *args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        self.__to_functional().save(*args, **kwargs)
+
+    def get_config(self):
+        config = super().get_config()
+        config.update(
+            {
+                "in_chans": self.in_chans,
+                "num_classes": self.num_classes,
+                "act_layer": self.act_layer,
+                "init": self.init,
+                "spec": self.spec,
+                "classifier_activation": self.classifier_activation,
+                "data_format": self.data_format,
+            }
+        )
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
+
+def CvT(
+    configuration: Optional[Literal["cvt-13", "cvt-21", "cvt-w24"]] = None,
+    pretrained: bool = False,
+    pretrained_resolution: Literal[224, 384] = 224,
+    pretrained_version: Literal["1k", "22k"] = "1k",
+    **kwargs,
+) -> tf.keras.Model:
+    """Wrapper function for CvT model.
 
     Parameters
     ----------
-    configuration : Optional[str], optional
-        Name of CvT predefined configuration. 
-        Possible values are: cvt-13, cvt-21, cvt-w24
+    configuration : Optional[Literal["cvt-13","cvt-21","cvt-w24"]], optional
+        Name of CvT predefined configuration.
+        Possible values are: "cvt-13", "cvt-21", "cvt-w24".
         The default is None.
     pretrained : bool, optional
-        Whether to use ImageNet pretrained weights. 
+        Whether to use ImageNet pretrained weights.
         The default is False.
-    pretrained_resolution : int, optional
+    pretrained_resolution : Literal[224,384], optional
         Image resolution of ImageNet pretrained weights.
-        Possible values are: 224, 384
+        Possible values are: 224, 384.
         The default is 224.
-    pretrained_version : str, optional
-        Whether to use ImageNet-1k or ImageNet-22k 
+    pretrained_version : Literal["1k","22k"], optional
+        Whether to use ImageNet-1k or ImageNet-22k
         pretrained weights.
-        The default is '1k'.
+        The default is "1k".
+    **kwargs
+        Additional keyword arguments.
 
     Raises
     ------
     KeyError
         If choosen configuration not in:
-            ['cvt-13','cvt-21','cvt-w24']
+            ["cvt-13","cvt-21","cvt-w24"]
 
     Returns
     -------
-    CvT model (tf.keras.Model)
-    '''
+    tf.keras.Model
+        CvT model.
+    """
     if configuration is not None:
         if configuration in MODELS_CONFIG.keys():
-            model = ConvolutionalVisionTransformer(spec = MODELS_CONFIG[configuration]['SPEC'],
-                                                   name = MODELS_CONFIG[configuration]['name'],
-                                                   **kwargs
-                                                   )
+            model = ConvolutionalVisionTransformer(
+                spec=MODELS_CONFIG[configuration]["SPEC"],
+                name=MODELS_CONFIG[configuration]["name"],
+                **kwargs,
+            )
             if pretrained:
                 if model.data_format == "channels_last":
-                    model(tf.ones((1,pretrained_resolution,pretrained_resolution,3)))
+                    model.build((None, pretrained_resolution, pretrained_resolution, 3))
                 elif model.data_format == "channels_first":
-                    model(tf.ones((1,3,pretrained_resolution,pretrained_resolution)))
-                weights_path = "{}/{}/{}-{}x{}_{}.h5".format(TF_WEIGHTS_URL,VERSION,
-                                                             configuration,
-                                                             pretrained_resolution,
-                                                             pretrained_resolution,
-                                                             pretrained_version
-                                                             )
-                model_weights = tf.keras.utils.get_file(fname = "{}-{}x{}_{}.h5".format(configuration,
-                                                                                        pretrained_resolution,
-                                                                                        pretrained_resolution,
-                                                                                        pretrained_version
-                                                                                        ),
-                                                        origin = weights_path,
-                                                        cache_subdir = "datasets/cvt_tensorflow"
-                                                        )
+                    model.build((None, 3, pretrained_resolution, pretrained_resolution))
+                weights_path = "{}/{}/{}-{}x{}_{}.h5".format(
+                    TF_WEIGHTS_URL,
+                    __version__,
+                    configuration,
+                    pretrained_resolution,
+                    pretrained_resolution,
+                    pretrained_version,
+                )
+                model_weights = tf.keras.utils.get_file(
+                    fname="{}-{}x{}_{}.h5".format(
+                        configuration,
+                        pretrained_resolution,
+                        pretrained_resolution,
+                        pretrained_version,
+                    ),
+                    origin=weights_path,
+                    cache_subdir="datasets/cvt_tensorflow",
+                )
                 model.load_weights(model_weights)
             return model
         else:
-            raise KeyError(f"{configuration} configuration not found. Valid values are: {list(MODELS_CONFIG.keys())}")
+            raise KeyError(
+                f"{configuration} configuration not found. "
+                "Valid values are: {list(MODELS_CONFIG.keys())}"
+            )
     else:
         return ConvolutionalVisionTransformer(**kwargs)

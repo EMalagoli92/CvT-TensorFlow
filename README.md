@@ -91,52 +91,81 @@ Tested on *Ubuntu 20.04.4 LTS x86_64*, *python 3.9.7*.
 ```python
 from cvt_tensorflow import CvT
 
-# Define a custom model configuration
-model = CvT(in_chans = 3,
-            num_classes = 1000,
-            classifier_activation = "softmax",
-            data_format = "channels_last"
-            spec = {"INIT": 'trunc_norm',
-                    "NUM_STAGES": 3,
-                    "PATCH_SIZE": [7, 3, 3],
-                    "PATCH_STRIDE": [4, 2, 2],
-                    "PATCH_PADDING": [2, 1, 1],
-                    "DIM_EMBED": [64, 192, 384],
-                    "NUM_HEADS": [1, 3, 6],
-                    "DEPTH": [1, 2, 10],
-                    "MLP_RATIO": [4.0, 4.0, 4.0],
-                    "ATTN_DROP_RATE": [0.0, 0.0, 0.0],
-                    "DROP_RATE": [0.0, 0.0, 0.0],
-                    "DROP_PATH_RATE": [0.0, 0.0, 0.1],
-                    "QKV_BIAS": [True, True, True],
-                    "CLS_TOKEN": [False, False, True],
-                    "POS_EMBED": [False, False, False],
-                    "QKV_PROJ_METHOD": ['dw_bn', 'dw_bn', 'dw_bn'],
-                    "KERNEL_QKV": [3, 3, 3],
-                    "PADDING_KV": [1, 1, 1],
-                    "STRIDE_KV": [2, 2, 2],
-                    "PADDING_Q": [1, 1, 1],
-                    "STRIDE_Q": [1, 1, 1]
-                    },
-              )
+# Define a custom CvT configuration
+model = CvT(
+    in_chans=3,
+    num_classes=1000,
+    classifier_activation="softmax",
+    data_format="channels_last",
+    spec={
+        "INIT": "trunc_norm",
+        "NUM_STAGES": 3,
+        "PATCH_SIZE": [7, 3, 3],
+        "PATCH_STRIDE": [4, 2, 2],
+        "PATCH_PADDING": [2, 1, 1],
+        "DIM_EMBED": [64, 192, 384],
+        "NUM_HEADS": [1, 3, 6],
+        "DEPTH": [1, 2, 10],
+        "MLP_RATIO": [4.0, 4.0, 4.0],
+        "ATTN_DROP_RATE": [0.0, 0.0, 0.0],
+        "DROP_RATE": [0.0, 0.0, 0.0],
+        "DROP_PATH_RATE": [0.0, 0.0, 0.1],
+        "QKV_BIAS": [True, True, True],
+        "CLS_TOKEN": [False, False, True],
+        "POS_EMBED": [False, False, False],
+        "QKV_PROJ_METHOD": ["dw_bn", "dw_bn", "dw_bn"],
+        "KERNEL_QKV": [3, 3, 3],
+        "PADDING_KV": [1, 1, 1],
+        "STRIDE_KV": [2, 2, 2],
+        "PADDING_Q": [1, 1, 1],
+        "STRIDE_Q": [1, 1, 1],
+    },
+)
 ```
 - Use a predefined CvT configuration.
 ```python
 from cvt_tensorflow import CvT
-    
-model = CvT(configuration = "cvt-21",
-            data_format = 'channels_last',
-            classifier_activation = 'softmax'
-            )
+
+model = CvT(
+    configuration="cvt-21", data_format="channels_last", classifier_activation="softmax"
+)
+model.build((None, 224, 224, 3))
+print(model.summary())
+
+```
+```
+Model: "cvt-21"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ stage0 (VisionTransformer)  multiple                  62080     
+                                                                 
+ stage1 (VisionTransformer)  multiple                  1920576   
+                                                                 
+ stage2 (VisionTransformer)  ((None, 384, 14, 14),     29296128  
+                              (None, 1, 384))                    
+                                                                 
+ norm (LayerNorm_)           (None, 1, 384)            768       
+                                                                 
+ head (Dense_)               (None, 1000)              385000    
+                                                                 
+ pred (Activation)           (None, 1000)              0         
+                                                                 
+=================================================================
+Total params: 31,664,552
+Trainable params: 31,622,696
+Non-trainable params: 41,856
+_________________________________________________________________
 ```
 - Train from scratch the model.
 ```python    
 # Example
-model.compile(optimizer="sgd",
-              loss = "sparse_categorical_crossentropy",
-              metrics = ["accuracy","sparse_top_k_categorical_accuracy"]
-              )
-model.fit(x,y)              
+model.compile(
+    optimizer="sgd",
+    loss="sparse_categorical_crossentropy",
+    metrics=["accuracy", "sparse_top_k_categorical_accuracy"],
+)
+model.fit(x, y)            
 ```
 - Use ported ImageNet pretrained weights
 ```python
@@ -144,12 +173,13 @@ model.fit(x,y)
 from cvt_tensorflow import CvT
 
 # Use cvt-13-384x384_22k ImageNet pretrained weights
-model = CvT(configuration = "cvt-13",
-            pretrained = True, 
-            pretrained_resolution = 384,
-            pretrained_version = "22k",           
-            classifier_activation = "softmax"
-            )
+model = CvT(
+    configuration="cvt-13",
+    pretrained=True,
+    pretrained_resolution=384,
+    pretrained_version="22k",
+    classifier_activation="softmax",
+)
 y_pred = model(image)
 ```
 
