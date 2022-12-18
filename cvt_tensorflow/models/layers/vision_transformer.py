@@ -173,7 +173,7 @@ class VisionTransformer(tf.keras.layers.Layer):
                     attn_drop=self.attn_drop_rate,
                     drop_path=dpr[j],
                     act_layer=self.act_layer,
-                    dense_kernel_initializer=self.init,
+                    init=self.init,
                     method=self.method,
                     kernel_size=self.kernel_size,
                     padding_q=self.padding_q,

@@ -23,7 +23,7 @@ class Block(tf.keras.layers.Layer):
         attn_drop: float = 0.0,
         drop_path: float = 0.0,
         act_layer: str = "gelu",
-        dense_kernel_initializer: Literal["trunc_norm", "xavier"] = "trunc_norm",
+        init: Literal["trunc_norm", "xavier"] = "trunc_norm",
         method: Literal["dw_bn", "avg"] = "dw_bn",
         kernel_size: int = 3,
         padding_q: int = 1,
@@ -61,7 +61,7 @@ class Block(tf.keras.layers.Layer):
         act_layer : str, optional
             Name of activation Layer.
             The default is "gelu".
-        dense_kernel_initializer : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm","xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
@@ -98,7 +98,7 @@ class Block(tf.keras.layers.Layer):
         self.attn_drop = attn_drop
         self.drop_path = drop_path
         self.act_layer = act_layer
-        self.dense_kernel_initializer = dense_kernel_initializer
+        self.init = init
         self.method = method
         self.kernel_size = kernel_size
         self.padding_q = padding_q
@@ -115,7 +115,7 @@ class Block(tf.keras.layers.Layer):
             qkv_bias=self.qkv_bias,
             attn_drop=self.attn_drop,
             proj_drop=self.drop,
-            dense_kernel_initializer=self.dense_kernel_initializer,
+            init=self.init,
             method=self.method,
             kernel_size=self.kernel_size,
             padding_q=self.padding_q,
@@ -138,7 +138,7 @@ class Block(tf.keras.layers.Layer):
             hidden_features=dim_mlp_hidden,
             act_layer=self.act_layer,
             drop=self.drop,
-            dense_kernel_initializer=self.dense_kernel_initializer,
+            init=self.init,
             name="mlp",
         )
         super().build(input_shape)
@@ -167,7 +167,7 @@ class Block(tf.keras.layers.Layer):
                 "attn_drop": self.attn_drop,
                 "drop_path": self.drop_path,
                 "act_layer": self.act_layer,
-                "dense_kernel_initializer": self.dense_kernel_initializer,
+                "init": self.init,
                 "method": self.method,
                 "kernel_size": self.kernel_size,
                 "padding_q": self.padding_q,

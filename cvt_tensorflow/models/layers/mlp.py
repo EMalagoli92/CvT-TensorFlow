@@ -4,7 +4,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 
 from cvt_tensorflow.models.layers.utils import (
-    Dense_,
+    Linear_,
     QuickGELU_,
     TruncNormalInitializer_,
 )
@@ -21,7 +21,7 @@ class Mlp(tf.keras.layers.Layer):
         out_features: Optional[int] = None,
         act_layer: str = "gelu",
         drop: float = 0.0,
-        dense_kernel_initializer: Literal["trunc_norm", "xavier"] = "trunc_norm",
+        init: Literal["trunc_norm", "xavier"] = "trunc_norm",
         **kwargs
     ):
         """
@@ -41,7 +41,7 @@ class Mlp(tf.keras.layers.Layer):
         drop : float, optional
             Dropout rate.
             The default is 0.0.
-        dense_kernel_initializer : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm","xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
@@ -54,26 +54,24 @@ class Mlp(tf.keras.layers.Layer):
         self.out_features = out_features
         self.act_layer = act_layer
         self.drop = drop
-        self.dense_kernel_initializer = dense_kernel_initializer
+        self.init = init
 
     def build(self, input_shape):
         self._out_features = self.out_features or self.in_features
         self._hidden_features = self.hidden_features or self.in_features
-        if self.dense_kernel_initializer == "xavier":
-            dense_kernel_initializer_ = tf.keras.initializers.GlorotUniform()
-        elif self.dense_kernel_initializer == "trunc_norm":
-            dense_kernel_initializer_ = TruncNormalInitializer_(std=0.02)
+        if self.init == "xavier":
+            init_ = tf.keras.initializers.GlorotUniform()
+        elif self.init == "trunc_norm":
+            init_ = TruncNormalInitializer_(std=0.02)
         else:
             raise ValueError(
                 "Unknown initialization method({}). "
-                "Possible values are: trunc_norm, xavier".format(
-                    self.dense_kernel_initializer
-                )
+                "Possible values are: trunc_norm, xavier".format(self.init)
             )
-        self.fc1 = Dense_(
+        self.fc1 = Linear_(
             in_features=self.in_features,
             units=self._hidden_features,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="fc1",
         )
@@ -85,10 +83,10 @@ class Mlp(tf.keras.layers.Layer):
             self.act = tf.keras.layers.Activation(
                 self.act_layer, dtype=self.dtype, name="act"
             )
-        self.fc2 = Dense_(
+        self.fc2 = Linear_(
             in_features=self._hidden_features,
             units=self._out_features,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="fc2",
         )
@@ -112,7 +110,7 @@ class Mlp(tf.keras.layers.Layer):
                 "out_features": self.out_features,
                 "act_layer": self.act_layer,
                 "drop": self.drop,
-                "dense_kernel_initializer": self.dense_kernel_initializer,
+                "init": self.init,
             }
         )
         return config

@@ -6,9 +6,9 @@ from einops import rearrange
 from cvt_tensorflow import __version__
 from cvt_tensorflow.models.config import MODELS_CONFIG, TF_WEIGHTS_URL
 from cvt_tensorflow.models.layers.utils import (
-    Dense_,
     Identity_,
     LayerNorm_,
+    Linear_,
     TruncNormalInitializer_,
 )
 from cvt_tensorflow.models.layers.vision_transformer import VisionTransformer
@@ -110,7 +110,7 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
 
         # Classifier head
         self.head = (
-            Dense_(
+            Linear_(
                 in_features=dim_embed,
                 units=self.num_classes,
                 bias_initializer="pytorch_uniform",

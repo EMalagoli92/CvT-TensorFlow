@@ -8,7 +8,7 @@ from cvt_tensorflow.models.layers.utils import (
     AvgPool2d_,
     BatchNorm2d_,
     Conv2d_,
-    Dense_,
+    Linear_,
     TruncNormalInitializer_,
 )
 from cvt_tensorflow.models.utils import run_layers_list
@@ -33,7 +33,7 @@ class Attention_(tf.keras.layers.Layer):
         padding_kv: int = 1,
         padding_q: int = 1,
         with_cls_token: bool = True,
-        dense_kernel_initializer: Literal["trunc_norm", "xavier"] = "trunc_norm",
+        init: Literal["trunc_norm", "xavier"] = "trunc_norm",
         **kwargs,
     ):
         """
@@ -76,7 +76,7 @@ class Attention_(tf.keras.layers.Layer):
         with_cls_token : bool, optional
             Whether to include classification token.
             The default is True.
-        dense_kernel_initializer : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm","xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
@@ -97,7 +97,7 @@ class Attention_(tf.keras.layers.Layer):
         self.padding_kv = padding_kv
         self.padding_q = padding_q
         self.with_cls_token = with_cls_token
-        self.dense_kernel_initializer = dense_kernel_initializer
+        self.init = init
 
     def build(self, input_shape):
         self.dim = self.dim_out
@@ -129,46 +129,44 @@ class Attention_(tf.keras.layers.Layer):
             method=self.method,
             name="conv_proj_v",
         )
-        if self.dense_kernel_initializer == "xavier":
-            dense_kernel_initializer_ = tf.keras.initializers.GlorotUniform()
-        elif self.dense_kernel_initializer == "trunc_norm":
-            dense_kernel_initializer_ = TruncNormalInitializer_(std=0.02)
+        if self.init == "xavier":
+            init_ = tf.keras.initializers.GlorotUniform()
+        elif self.init == "trunc_norm":
+            init_ = TruncNormalInitializer_(std=0.02)
         else:
             raise ValueError(
                 "Unknown initialization method({}). "
-                "Possible values are: trunc_norm, xavier".format(
-                    self.dense_kernel_initializer
-                )
+                "Possible values are: trunc_norm, xavier".format(self.init)
             )
-        self.proj_q = Dense_(
+        self.proj_q = Linear_(
             in_features=self.dim_in,
             units=self.dim_out,
             use_bias=self.qkv_bias,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="proj_q",
         )
-        self.proj_k = Dense_(
+        self.proj_k = Linear_(
             in_features=self.dim_in,
             units=self.dim_out,
             use_bias=self.qkv_bias,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="proj_k",
         )
-        self.proj_v = Dense_(
+        self.proj_v = Linear_(
             in_features=self.dim_in,
             units=self.dim_out,
             use_bias=self.qkv_bias,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="proj_v",
         )
         self.attn_drop = tf.keras.layers.Dropout(rate=self.attn_drop, name="attn_drop")
-        self.proj = Dense_(
+        self.proj = Linear_(
             in_features=self.dim_out,
             units=self.dim_out,
-            kernel_initializer=dense_kernel_initializer_,
+            kernel_initializer=init_,
             bias_initializer=tf.keras.initializers.Zeros(),
             name="proj",
         )
@@ -336,7 +334,7 @@ class Attention_(tf.keras.layers.Layer):
                 "padding_kv": self.padding_kv,
                 "padding_q": self.padding_q,
                 "with_cls_token": self.with_cls_token,
-                "dense_kernel_initializer": self.dense_kernel_initializer,
+                "init": self.init,
             }
         )
         return config

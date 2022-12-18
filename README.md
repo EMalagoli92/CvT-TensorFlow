@@ -147,7 +147,7 @@ _________________________________________________________________
                                                                  
  norm (LayerNorm_)           (None, 1, 384)            768       
                                                                  
- head (Dense_)               (None, 1000)              385000    
+ head (Linear_)              (None, 1000)              385000    
                                                                  
  pred (Activation)           (None, 1000)              0         
                                                                  

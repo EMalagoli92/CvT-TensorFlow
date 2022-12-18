@@ -103,8 +103,8 @@ class TruncNormalInitializer_(tf.keras.initializers.Initializer):
 
 
 @tf.keras.utils.register_keras_serializable(package="cvt")
-class Dense_(tf.keras.layers.Dense):
-    """Custom implementation of tf.keras.layers.Dense."""
+class Linear_(tf.keras.layers.Dense):
+    """TF2/Keras implementation of torch.nn.Linear."""
 
     def __init__(
         self,
