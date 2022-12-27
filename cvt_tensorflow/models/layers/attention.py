@@ -136,7 +136,7 @@ class Attention_(tf.keras.layers.Layer):
         else:
             raise ValueError(
                 "Unknown initialization method({}). "
-                "Possible values are: trunc_norm, xavier".format(self.init)
+                "Possible values are: 'trunc_norm', 'xavier'.".format(self.init)
             )
         self.proj_q = Linear_(
             in_features=self.dim_in,
