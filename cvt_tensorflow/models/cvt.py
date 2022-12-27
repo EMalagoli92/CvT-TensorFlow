@@ -159,7 +159,7 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
         else:
             raise ValueError(
                 "This model has not yet been built. "
-                "Build the model first by calling `build()` or "
+                "Build the model first by calling build() or "
                 "by calling the model on a batch of data."
             )
         return model
