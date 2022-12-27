@@ -131,7 +131,6 @@ model = CvT(
 )
 model.build((None, 224, 224, 3))
 print(model.summary())
-
 ```
 ```
 Model: "cvt-21"
@@ -165,7 +164,7 @@ model.compile(
     loss="sparse_categorical_crossentropy",
     metrics=["accuracy", "sparse_top_k_categorical_accuracy"],
 )
-model.fit(x, y)            
+model.fit(x, y)
 ```
 - Use ported ImageNet pretrained weights
 ```python
