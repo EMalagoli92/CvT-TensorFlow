@@ -173,10 +173,10 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
         config = super().get_config()
         config.update(
             {
+                "spec": self.spec,
                 "in_chans": self.in_chans,
                 "num_classes": self.num_classes,
                 "act_layer": self.act_layer,
-                "spec": self.spec,
                 "classifier_activation": self.classifier_activation,
                 "data_format": self.data_format,
             }
