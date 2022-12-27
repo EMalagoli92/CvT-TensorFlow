@@ -112,7 +112,6 @@ model = CvT(
         "DROP_PATH_RATE": [0.0, 0.0, 0.1],
         "QKV_BIAS": [True, True, True],
         "CLS_TOKEN": [False, False, True],
-        "POS_EMBED": [False, False, False],
         "QKV_PROJ_METHOD": ["dw_bn", "dw_bn", "dw_bn"],
         "KERNEL_QKV": [3, 3, 3],
         "PADDING_KV": [1, 1, 1],
