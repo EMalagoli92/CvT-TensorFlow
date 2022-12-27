@@ -58,10 +58,10 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
             Additional keyword arguments.
         """
         super().__init__(**kwargs)
+        self.spec = spec
         self.in_chans = in_chans
         self.num_classes = num_classes
         self.act_layer = act_layer
-        self.spec = spec
         self.classifier_activation = classifier_activation
         self.data_format = data_format
 
