@@ -269,7 +269,7 @@ def CvT(
         else:
             raise KeyError(
                 f"{configuration} configuration not found. "
-                "Valid values are: {list(MODELS_CONFIG.keys())}"
+                f"Valid values are: {list(MODELS_CONFIG.keys())}"
             )
     else:
         return ConvolutionalVisionTransformer(**kwargs)
