@@ -64,7 +64,7 @@ class VisionTransformer(tf.keras.layers.Layer):
             Number of heads in attention.
             The default is 12.
         mlp_ratio : float, optional
-            Feature dimension expansion ratio in Mlp.
+            Feature dimension expansion ratio in MLP.
             The default is 4.0.
         qkv_bias : bool, optional
             Whether to use bias in proj_q, proj_k, proj_v.

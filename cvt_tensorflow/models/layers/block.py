@@ -44,7 +44,7 @@ class Block(tf.keras.layers.Layer):
         with_cls_token : bool
             Whether to include classification token.
         mlp_ratio : float, optional
-            Feature dimension expansion ratio in Mlp.
+            Feature dimension expansion ratio in MLP.
             The default is 4.0.
         qkv_bias : bool, optional
             Whether to use bias in proj_q, proj_k, proj_v.
