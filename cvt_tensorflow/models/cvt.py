@@ -23,7 +23,6 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
         in_chans: int = 3,
         num_classes: int = 1000,
         act_layer: str = "quick_gelu",
-        init: Literal["trunc_norm", "xavier"] = "trunc_norm",
         classifier_activation: Optional[str] = None,
         data_format: Literal[
             "channels_first", "channels_last"
@@ -44,10 +43,6 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
         act_layer : str, optional
             Name of activation layer.
             The default is "quick_gelu".
-        init : Literal["trunc_norm","xavier"], optional
-            Initialization method.
-            Possible values are: "trunc_norm", "xavier".
-            The default is "trunc_norm".
         classifier_activation : Optional[str], optional
             String name for a tf.keras.layers.Activation layer.
             The default is None.
@@ -66,11 +61,11 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
         self.in_chans = in_chans
         self.num_classes = num_classes
         self.act_layer = act_layer
-        self.init = init
         self.spec = spec
         self.classifier_activation = classifier_activation
         self.data_format = data_format
 
+        self.init = self.spec["INIT"]
         self.num_stages = self.spec["NUM_STAGES"]
         in_chans_ = self.in_chans
         for i in range(self.num_stages):
@@ -181,7 +176,6 @@ class ConvolutionalVisionTransformer(tf.keras.Model):
                 "in_chans": self.in_chans,
                 "num_classes": self.num_classes,
                 "act_layer": self.act_layer,
-                "init": self.init,
                 "spec": self.spec,
                 "classifier_activation": self.classifier_activation,
                 "data_format": self.data_format,
