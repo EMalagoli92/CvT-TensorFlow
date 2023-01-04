@@ -54,7 +54,7 @@ class Attention_(tf.keras.layers.Layer):
         proj_drop : float, optional
             Probability of dropout in convolution projection.
             The default is 0.0.
-        method : Literal["dw_bn","avg"], optional
+        method : Literal["dw_bn", "avg"], optional
             Method of projection, "dw_bn" for depth-wise convolution
             and batch norm, "avg" for average pooling.
             The default is "dw_bn".
@@ -76,7 +76,7 @@ class Attention_(tf.keras.layers.Layer):
         with_cls_token : bool, optional
             Whether to include classification token.
             The default is True.
-        init : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm", "xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
