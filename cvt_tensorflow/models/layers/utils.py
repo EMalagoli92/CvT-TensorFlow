@@ -363,12 +363,12 @@ class AvgPool2d_(tf.keras.layers.Layer):
         """
         Parameters
         ----------
-        kernel_size : Union[int,tuple]
+        kernel_size : Union[int, tuple]
             The size of the window.
         stride : Optional[Union[int, tuple]], optional
             The stride of the window.
             If None, equal to kernel_size.
-        padding : Union[int,tuple], optional
+        padding : Union[int, tuple], optional
             Implicit zero padding to be added on both sides.
             The default is 0.
         ceil_mode : bool, optional
