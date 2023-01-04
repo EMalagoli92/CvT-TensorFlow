@@ -61,11 +61,11 @@ class Block(tf.keras.layers.Layer):
         act_layer : str, optional
             Name of activation Layer.
             The default is "gelu".
-        init : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm", "xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
-        method : Literal["dw_bn","avg"], optional
+        method : Literal["dw_bn", "avg"], optional
             Method of projection, "dw_bn" for depth-wise convolution
             and batch norm, "avg" for average pooling.
             The default is "dw_bn".
