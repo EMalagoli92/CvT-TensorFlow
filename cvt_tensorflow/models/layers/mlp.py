@@ -41,7 +41,7 @@ class Mlp(tf.keras.layers.Layer):
         drop : float, optional
             Dropout rate.
             The default is 0.0.
-        init : Literal["trunc_norm","xavier"], optional
+        init : Literal["trunc_norm", "xavier"], optional
             Initialization method.
             Possible values are: "trunc_norm", "xavier".
             The default is "trunc_norm".
