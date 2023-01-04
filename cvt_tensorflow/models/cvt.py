@@ -199,18 +199,18 @@ def CvT(
 
     Parameters
     ----------
-    configuration : Optional[Literal["cvt-13","cvt-21","cvt-w24"]], optional
+    configuration : Optional[Literal["cvt-13", "cvt-21", "cvt-w24"]], optional
         Name of CvT predefined configuration.
         Possible values are: "cvt-13", "cvt-21", "cvt-w24".
         The default is None.
     pretrained : bool, optional
         Whether to use ImageNet pretrained weights.
         The default is False.
-    pretrained_resolution : Literal[224,384], optional
+    pretrained_resolution : Literal[224, 384], optional
         Image resolution of ImageNet pretrained weights.
         Possible values are: 224, 384.
         The default is 224.
-    pretrained_version : Literal["1k","22k"], optional
+    pretrained_version : Literal["1k", "22k"], optional
         Whether to use ImageNet-1k or ImageNet-22k
         pretrained weights.
         The default is "1k".
@@ -221,7 +221,7 @@ def CvT(
     ------
     KeyError
         If choosen configuration not in:
-            ["cvt-13","cvt-21","cvt-w24"]
+        ["cvt-13","cvt-21","cvt-w24"]
 
     Returns
     -------
