@@ -385,10 +385,10 @@ class AvgPool2d_(tf.keras.layers.Layer):
                 - a tuple of two ints – in which case, the first int is used
                   for the height dimension, and the second int for the width
                   dimension.
-         - When ceil_mode=True, sliding windows are allowed to go off-bounds
-           if they start within the left padding or the input.
-           Sliding windows that would start in the right padded region are
-           ignored.
+        - When ceil_mode=True, sliding windows are allowed to go off-bounds
+          if they start within the left padding or the input.
+          Sliding windows that would start in the right padded region are
+          ignored.
         """
         super().__init__(**kwargs)
         self.kernel_size = kernel_size
