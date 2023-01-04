@@ -341,18 +341,10 @@ class BatchNorm2d_(tf.keras.layers.BatchNormalization):
         **kwargs
             Additional keyword arguments.
         """
-        self.epsilon = epsilon
-        self.momentum = momentum
-        self.axis = axis
-        super().__init__(
-            **kwargs, epsilon=self.epsilon, momentum=self.momentum, axis=self.axis
-        )
+        super().__init__(**kwargs, epsilon=epsilon, momentum=momentum, axis=axis)
 
     def get_config(self):
         config = super().get_config()
-        config.update(
-            {"epsilon": self.epsilon, "momentum": self.momentum, "axis": self.axis}
-        )
         return config
 
 
