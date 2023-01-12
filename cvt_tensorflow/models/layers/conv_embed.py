@@ -2,7 +2,7 @@ import tensorflow as tf
 from einops import rearrange
 
 from cvt_tensorflow.models.layers.utils import Conv2d_, LayerNorm_
-from cvt_tensorflow.models.utils import to_2tuple
+from cvt_tensorflow.models.utils import _ntuple
 
 
 @tf.keras.utils.register_keras_serializable(package="cvt")
@@ -48,7 +48,7 @@ class ConvEmbed(tf.keras.layers.Layer):
         self.padding = padding
 
     def build(self, input_shape):
-        patch_size = to_2tuple(self.patch_size)
+        patch_size = _ntuple(2)(self.patch_size)
 
         self.proj = Conv2d_(
             in_channels=self.in_chans,
